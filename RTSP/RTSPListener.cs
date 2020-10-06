@@ -15,8 +15,6 @@
     /// </summary>
     public class RtspListener : IDisposable
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
         private IRtspTransport _transport;
 
         private Thread _listenTread;
@@ -124,7 +122,6 @@
         {
             try
             {
-                _logger.Debug("Connection Open");
                 while (_transport.Connected)
                 {
                     // La lectuer est blocking sauf si la connection est coupé
@@ -132,13 +129,6 @@
 
                     if (currentMessage != null)
                     {
-                        if (!(currentMessage is RtspData))
-                        {
-                            // on logue le tout
-                            if (currentMessage.SourcePort != null)
-                                _logger.Debug(CultureInfo.InvariantCulture, "Receive from {0}", currentMessage.SourcePort.RemoteAdress);
-                            currentMessage.LogMessage();
-                        }
                         if (currentMessage is RtspResponse)
                         {
 
@@ -151,10 +141,6 @@
                                 {
                                     _sentMessage.Remove(response.CSeq);
                                     response.OriginalRequest = originalRequest;
-                                }
-                                else
-                                {
-                                    _logger.Warn(CultureInfo.InvariantCulture, "Receive response not asked {0}", response.CSeq);
                                 }
                             }
                             OnMessageReceived(new RtspChunkEventArgs(response));
@@ -177,29 +163,20 @@
                     }
                 }
             }
-            catch (IOException error)
+            catch (IOException)
             {
-                _logger.Warn("IO Error", error);
                 _stream.Close();
                 _transport.Close();
             }
-            catch (SocketException error)
+            catch (SocketException)
             {
-                _logger.Warn("Socket Error", error);
                 _stream.Close();
                 _transport.Close();
             }
-            catch (ObjectDisposedException error)
+            catch (Exception)
             {
-                _logger.Warn("Object Disposed", error);
-            }
-            catch (Exception error)
-            {
-                _logger.Warn("Unknow Error", error);
 //                throw;
             }
-
-            _logger.Debug("Connection Close");
         }
 
         [Serializable]
@@ -229,7 +206,6 @@
                 if(!AutoReconnect)
                     return false;
 
-                _logger.Warn("Reconnect to a client, strange !!");
                 try
                 {
                     Reconnect();
@@ -257,7 +233,6 @@
                 }
             }
 
-            _logger.Debug("Send Message");
             message.LogMessage();
             message.SendTo(_stream);
             return true;
@@ -381,7 +356,6 @@
                                 break;
                             }
                             byteReaden += byteCount;
-                            _logger.Debug(CultureInfo.InvariantCulture, "Readen {0} byte of data", byteReaden);
                         }
                         // if we haven't read all go there again else go to end. 
                         if (byteReaden >= currentMessage.Data.Length)
@@ -469,7 +443,6 @@
                 if(!AutoReconnect)
                     return null; // cannot write when transport is disconnected
 
-                _logger.Warn("Reconnect to a client, strange !!");
                 Reconnect();
             }
 
@@ -494,7 +467,6 @@
             } catch (Exception e)
             {
                 // Error, for example stream has already been Disposed
-                _logger.Debug("Error during end send (can be ignored) " + e);
                 result = null;
             }
         }
@@ -517,7 +489,6 @@
                 if(!AutoReconnect)
                     throw new Exception("Connection is lost");
 
-                _logger.Warn("Reconnect to a client, strange !!");
                 Reconnect();
             }
 

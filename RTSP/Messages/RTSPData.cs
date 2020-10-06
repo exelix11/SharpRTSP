@@ -10,26 +10,6 @@ namespace Rtsp.Messages
     /// </summary>
     public class RtspData : RtspChunk
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
-        /// <summary>
-        /// Logs the message to debug.
-        /// </summary>
-        public override void LogMessage(NLog.LogLevel aLevel)
-        {
-            // Default value to debug
-            if (aLevel == null)
-                aLevel = NLog.LogLevel.Debug;
-            // if the level is not logged directly return
-            if (!_logger.IsEnabled(aLevel))
-                return;
-            _logger.Log(aLevel, "Data message");
-            if (Data == null)
-                _logger.Log(aLevel, "Data : null");
-            else
-                _logger.Log(aLevel, "Data length :-{0}-", Data.Length);
-        }
-
         public int Channel { get; set; }
 
         /// <summary>

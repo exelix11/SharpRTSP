@@ -10,8 +10,6 @@
 
     public class RtspMessage : RtspChunk
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
         /// <summary>
         /// The regex to validate the Rtsp message.
         /// </summary>
@@ -39,13 +37,11 @@
                     returnValue = new RtspResponse();
                 else
                 {
-                    _logger.Warn(CultureInfo.InvariantCulture, "Got a strange message {0}", aRequestLine);
                     returnValue = new RtspMessage();
                 }
             }
             else
             {
-                _logger.Warn(CultureInfo.InvariantCulture, "Got a strange message {0}", aRequestLine);
                 returnValue = new RtspMessage();
             }
             returnValue.Command = aRequestLine;
@@ -135,10 +131,6 @@
             if (elements.Length == 2)
             {
                 _headers[elements[0].Trim()] = elements[1].TrimStart();
-            }
-            else
-            {
-                _logger.Warn(CultureInfo.InvariantCulture, "Invalid Header received : -{0}-", line);
             }
         }
 
@@ -255,32 +247,6 @@
             stream.Flush();
         }
 
-
-
-        /// <summary>
-        /// Logs the message.
-        /// </summary>
-        /// <param name="aLevel">A log level.</param>
-        public override void LogMessage(NLog.LogLevel aLevel)
-        {
-            // Default value to debug
-            if (aLevel == null)
-                aLevel = NLog.LogLevel.Debug;
-            // if the level is not logged directly return
-            if (!_logger.IsEnabled(aLevel))
-                return;
-
-            _logger.Log(aLevel, "Commande : {0}", Command);
-            foreach (KeyValuePair<string, string> item in _headers)
-            {
-                _logger.Log(aLevel, "Header : {0}: {1}", item.Key, item.Value);
-            }
-
-            if (Data.Length > 0)
-            {
-                _logger.Log(aLevel, "Data :-{0}-", ASCIIEncoding.ASCII.GetString(Data));
-            }
-        }
 
         /// <summary>
         /// Crée un nouvel objet qui est une copie de l'instance en cours.

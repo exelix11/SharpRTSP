@@ -4,12 +4,9 @@ using System.Text;
 
 namespace Rtsp
 {
-
     // WWW-Authentication and Authorization Headers
     public class Authentication
     {
-        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
-
         public enum Type {Basic, Digest};
 
         private String username = null;
@@ -58,10 +55,8 @@ namespace Rtsp
                 string decoded_password = decoded.Substring(split_position + 1);
 
                 if ((decoded_username == username) && (decoded_password == password)) {
-					_logger.Debug("Basic Authorization passed");
                     return true;
                 } else {
-					_logger.Debug("Basic Authorization failed");
                     return false;
                 }
             }
@@ -114,10 +109,8 @@ namespace Rtsp
 				    && (auth_header_nonce == this.nonce)
 				    && (auth_header_response == expected_response)
 				   ){
-				    _logger.Debug("Digest Authorization passed");
                     return true;
                 } else {
-					_logger.Debug("Digest Authorization failed");
                     return false;
                 }
             }
